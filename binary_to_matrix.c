@@ -164,10 +164,9 @@ void read_type6_record(FILE *ptr, int *snp_data, int *snp_loc, uint8_t *types, u
     // compile with gdp (install)
     // valgrind --leak-check=full -g ./a.out
 
-    printf("Reading difflist \n");
-
+    printf("Allocating difflist ");
     int *snp_sample_values = malloc(1000 * sizeof(int)); // First SNP values, then sample values, 1000 should be enough to test
-    
+    printf("Difflist allocated \n");
     // read_difflist(ptr, snp_sample_values, snp_loc, types, lengths, snp_records_pos, num_samples, num_snps, snp_index);
 
     if(snp_sample_values == NULL){
