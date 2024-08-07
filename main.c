@@ -21,7 +21,7 @@ int read_pgen(FILE *pgen, char filename[], int chr, int pos_start, int pos_end);
 // int* read_difflist(FILE *ptr, int *snp_sample_values, int *snp_loc, uint8_t *types, uint8_t *lengths, int *snp_records_pos, int num_samples, int num_snps, int snp_index);
 // void read_type0_record(FILE *ptr, int *snp_data, int *snp_loc, uint8_t *types, uint8_t *lengths, int *snp_records_pos, int num_snps, int snp_index);
 // void read_type1_record(FILE *ptr, int *snp_data, int *snp_loc, uint8_t *types, uint8_t *lengths, int *snp_records_pos, int num_snps, int snp_index);
-void read_type6_record(FILE *ptr, int *snp_data, int *snp_loc, uint8_t *types, uint8_t *lengths, int *snp_records_pos, int num_samples, int num_snps, int snp_index);
+// void read_type6_record(FILE *ptr, int *snp_data, int *snp_loc, uint8_t *types, uint8_t *lengths, int *snp_records_pos, int num_samples, int num_snps, int snp_index);
 
 // uint8_t* find_types(FILE *ptr, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length);
 // uint8_t* find_lengths(FILE *ptr, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length);
@@ -31,7 +31,9 @@ int main(int argc, char *argv[]){
     int chr, pos_start, pos_end;
 
     char filename[100];
-    strcpy(filename, argv[1]);
+    strncpy(filename, argv[1], sizeof(filename));
+    filename[sizeof(filename) - 1] = '\0'; // Ensure null-termination
+
     chr = atoi(argv[2]);
     pos_start = atoi(argv[3]);
     pos_end = atoi(argv[4]);
@@ -51,15 +53,14 @@ int main(int argc, char *argv[]){
             printf("Error opening file\n");
             return 1;
         }
-
         read_pgen(ptr, filename, chr, pos_start, pos_end);
-        fclose(ptr);
 
     } else {
-        printf("File does not have the .pgen extension \n");
-        fclose(ptr);    
+        printf("File does not have the .pgen extension \n");   
     }
     
+    fclose(ptr);
+
     return 0;
 }
 
@@ -91,7 +92,7 @@ int read_pgen(FILE *ptr, char filename[], int chr, int pos_start, int pos_end){ 
     fseek(ptr, 7, SEEK_SET);  // Line is redundant, but kept for clarity
     elements_read = fread(info_snps_samples, sizeof(uint8_t), 4, ptr);
     num_samples = (info_snps_samples[0]) | (info_snps_samples[1] << 8) | (info_snps_samples[2] << 16) | (info_snps_samples[3] << 24);
-    printf("Number of SNPs and samples: %u and %u \n", num_samples, num_snps);
+    printf("Number of SNPs and samples: %i and %i \n", num_samples, num_snps);
 
     // Read the number of bits per record type and bytes per record length
     fseek(ptr, 11, SEEK_SET);
@@ -103,12 +104,12 @@ int read_pgen(FILE *ptr, char filename[], int chr, int pos_start, int pos_end){ 
     } else {bits_per_record_type = 4;}
     bytes_per_record_length = (SNP_info % 4) + 1;
 
-    printf("Bits per record: %u, bytes per record length: %u \n", bits_per_record_type, bytes_per_record_length);
+    printf("Bits per record: %i, bytes per record length: %i \n", bits_per_record_type, bytes_per_record_length);
 
     // Read bytes per allele count, and bytes per REF-allele bitarray (not too important for now)
     uint8_t bits_5_6 = (info_snps_samples[0] >> 4) & 0x03;
     uint8_t bits_7_8 = (info_snps_samples[0] >> 6) & 0x03;
-    printf("Allele count: %u, REF bitarray: %u \n", bits_5_6, bits_7_8);
+    printf("Allele count: %i, REF bitarray: %i \n", bits_5_6, bits_7_8);
 
     // Find the starting positions of the variant records
     int n_blocks = (num_snps-1)/65536 + 1;
@@ -138,26 +139,42 @@ int read_pgen(FILE *ptr, char filename[], int chr, int pos_start, int pos_end){ 
         // we expect ceiling(block_sizes[i] * bits_per_record_type/8) bytes
         int n_bytes_rec_types = (block_sizes[i] * bits_per_record_type + 7) / 8;
         int n_bytes_reclength_types = block_sizes[i] * bytes_per_record_length;
-        // printf("Expecting %i bytes for variant record types \n", n_bytes_rec_types);
-        // printf("Expecting %i bytes for variant lengths \n", n_bytes_reclength_types);
+        printf("Expecting %i bytes for variant record types \n", n_bytes_rec_types);
+        printf("Expecting %i bytes for variant lengths \n", n_bytes_reclength_types);
     }
 
     printf("Input %s %i %i %i \n", filename, chr, pos_start, pos_end);
 
-    // Location, types, and lengths of the SNP records
-    int *snp_loc = find_location(filename, chr, pos_start, pos_end);
-    uint8_t *types = find_types(ptr, start_pos_types, num_snps, bits_per_record_type, bytes_per_record_length);
-    uint8_t *lengths = find_lengths(ptr, start_pos_types, num_snps, bits_per_record_type, bytes_per_record_length);
-    int *snp_records_pos = find_snp_records(lengths, start_pos_variant_records, num_snps);
+    // Location, types, and lengths of the SNP records - code this differently!
+    int incl = num_include(filename, chr, pos_start, pos_end);
+
+    printf("included is %i\n", incl);
+
+    int *snp_loc = malloc(incl * sizeof(int));
+    int *types = malloc(num_snps * sizeof(int));
+    int *lengths = malloc(num_snps * sizeof(int));
+    int *snp_records_pos = malloc(num_snps * sizeof(int));
+
+    printf("Allocating %i and %i \n", incl, num_snps);
+    printf("Reading Location \n");
+    find_location(filename, snp_loc, chr, pos_start, pos_end);
+    printf("Reading Types \n");
+    find_types(ptr, types, start_pos_types, num_snps, bits_per_record_type, bytes_per_record_length);
+    printf("Reading Lengths \n");
+    find_lengths(ptr, lengths, start_pos_types, num_snps, bits_per_record_type, bytes_per_record_length);
+    printf("Reading Records \n");
+    find_snp_records(lengths, snp_records_pos, start_pos_variant_records, num_snps);
 
     // information of the first ten SNPs:
-    for (int j = 0; j < 15; j++){
-        printf("Location; %i, type: %i, length: %i, position: %i \n", snp_loc[j], types[j], lengths[j], snp_records_pos[j]);
+    for (int j = 0; j < 15 & j < incl - 1; j++){
+        int index = snp_loc[j] - 1;
+        printf("Entry; %i, type: %i, length: %i, position: %i \n", index, types[index], lengths[index], snp_records_pos[index]);
 
-        fseek(ptr, snp_records_pos[j], SEEK_SET);
-        for(int i = 0; i < lengths[j]; i++){
+        fseek(ptr, snp_records_pos[index], SEEK_SET);
+
+        for(int i = 0; i < lengths[index] & i < 10; i++){
             uint8_t byte;
-            fseek(ptr, snp_records_pos[j] + i, SEEK_SET);
+            fseek(ptr, snp_records_pos[index] + i, SEEK_SET);
             fread(&byte, sizeof(uint8_t), 1, ptr);
 
             printf("Byte %i, ", byte);
@@ -169,10 +186,36 @@ int read_pgen(FILE *ptr, char filename[], int chr, int pos_start, int pos_end){ 
         printf("\n\n");
     }
 
-    bin_to_mat(ptr, snp_loc, types, lengths, snp_records_pos, num_samples, num_snps);
 
+    // make array for all SNP data
+    double *snp_data_all = malloc(num_samples * incl * sizeof(double));
+    if(snp_data_all == NULL){
+        printf("Memory allocation failed\n");
+    }
+    bin_to_mat(ptr, snp_data_all, snp_loc, types, lengths, snp_records_pos, num_samples, num_snps, incl);
+
+    // write to a file!
+
+    FILE *output = fopen("/faststorage/project/dsmwpred/jasper/Software/read_pgen/output/output.txt", "w");
+    if (output == NULL) {
+        printf("Error opening file\n");
+        return 1;
+    }    
+    for (int i = 0; i < incl-1; i++){
+        fprintf(output, "%i ", snp_loc[i]);
+        fprintf(output, "%i ", types[i]);       // write the type of SNP
+        for(int j = 0; j < num_samples; j++){
+            fprintf(output, "%f ", snp_data_all[i*num_samples + j]);
+        }
+        fprintf(output, "\n");      
+    }
+    fclose(output);
     fclose(ptr);
     free(snp_loc);
+    free(types);
+    free(lengths);
+    free(snp_records_pos);
+    free(snp_data_all);
 
     return(0);
 }

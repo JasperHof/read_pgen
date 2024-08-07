@@ -3,9 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int* find_location(char filename[], int chr, int pos_start, int pos_end){
-    printf("test\n");
-    
+int num_include(char filename[], int chr, int pos_start, int pos_end){
+    printf("find number of SNPs that meet condition\n");
     char var_file[256], line[100]; // Assuming a maximum filename length of 255 characters
     
     FILE *var;
@@ -21,7 +20,45 @@ int* find_location(char filename[], int chr, int pos_start, int pos_end){
 
     int i = 1;
     int j = 1;                                      // Index for the snps in the set
-    int *snp_loc = malloc(1000000 * sizeof(int));   // Large vector, possible to look into 1M variants
+
+    // Read each line from the file
+    while (fgets(line, sizeof(line), var) != NULL) {
+        int col1, col2;
+
+        if (sscanf(line, "%d %d %*s %*s %*s", &col1, &col2) == 2) {
+            if (col1 == chr && col2 > pos_start && col2 < pos_end) {
+                j++;
+            }
+        }
+        i++;
+    }
+
+    fclose(var);
+
+    printf("Checked: %i, meeting conditions: %i\n", i, j);
+
+    return j;
+}
+
+void find_location(char filename[], int *snp_loc, int chr, int pos_start, int pos_end){
+    printf("test\n");
+    
+    char var_file[256], line[100]; // Assuming a maximum filename length of 255 characters
+    
+    FILE *var;
+
+    // Copy filename to var_file
+    strcpy(var_file, filename);
+    strcpy(strstr(var_file, ".pgen"), ".pvar");
+
+    printf("File name: %s\n", var_file);
+    printf("Searching on chr %i between pos %i and %i \n", chr, pos_start, pos_end);
+    
+    var = fopen(var_file, "r");
+    printf("File opened\n");	
+
+    int i = 1;
+    int j = 1;                                      // Index for the snps in the set
 
     // Read each line from the file
     while (fgets(line, sizeof(line), var) != NULL) {
@@ -36,57 +73,62 @@ int* find_location(char filename[], int chr, int pos_start, int pos_end){
             if (col1 == chr && col2 > pos_start && col2 < pos_end) {
                 // Print the row number
                 // printf("Row number: %ld\n", i);
-                snp_loc[j] = i-1;                       // The header doesn't count, so substract 1
+                snp_loc[j-1] = i-1;                       // The header doesn't count, so substract 1 (row number of .pvar file)
                 j++;
             }
         }
         i++;
     }
 
-    printf("Checked: %i\n", i);
+    printf("Filled entries %i\n", j);
 
-    return snp_loc;
+    fclose(var);
+    
+    printf("Checked: %i\n", i);
 }
 
-uint8_t* find_types(FILE *ptr, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length){
+void find_types(FILE *ptr, int* types, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length){
 
-    uint8_t *types = malloc(num_snps * sizeof(uint8_t));
     int n_blocks = (num_snps-1)/65536 + 1;      // Number of blocks
     int res = (num_snps-1) % 65536 + 1;         // Number of snps in the last block
     int j = 0, block_bytes = (65536 * bits_per_record_type + 7) / 8 + 65536*bytes_per_record_length;
 
-    printf("Block bytes: %i\n", block_bytes);
+    printf("Block bytes: %i, res is %i\n", block_bytes, res);
 
     for (int i = 1; i <= n_blocks; i++){
 
         fseek(ptr, start_pos_types, SEEK_SET);
 
         if(i == n_blocks){ // Reading the final block
+
             int n_bytes_rec_types = (res * bits_per_record_type + 7) / 8;
-            
-            for (int i = 0; i < n_bytes_rec_types; i++) {
+            printf("Reading %i bytes\n", n_bytes_rec_types);
+
+            for (int k = 0; k < n_bytes_rec_types; k++) {  // k loops over SNPs in block i
                 uint8_t byte;
 
-                fseek(ptr, start_pos_types+i, SEEK_SET);
+                fseek(ptr, start_pos_types+k, SEEK_SET);
                 fread(&byte, sizeof(uint8_t), 1, ptr);
 
                 // Extract lower and higher 4 bits
                 types[j] = byte & 0x0F;
-                types[j+1] = (byte >> 4) & 0x0F;
+                if(j < num_snps - 1){
+                    types[j+1] = (byte >> 4) & 0x0F;
+                }
                 j += 2;
 
-                if(i == n_bytes_rec_types-1){
-                    printf("Last byte: %i\n", start_pos_types+i);
+                if(k == n_bytes_rec_types-1){
+                    printf("Last byte: %i\n", start_pos_types+k);
                 }
             }
 
         } else {
             int n_bytes_rec_types = (65536 * bits_per_record_type + 7) / 8;
             
-            for (int i = 0; i < n_bytes_rec_types; i++) {
+            for (int k = 0; k < n_bytes_rec_types; k++) {   // k loops over the bytes in block i
                 uint8_t byte;
 
-                fseek(ptr, start_pos_types+i, SEEK_SET);
+                fseek(ptr, start_pos_types+k, SEEK_SET);
                 fread(&byte, sizeof(uint8_t), 1, ptr);
 
                 // Extract lower and higher 4 bits
@@ -99,18 +141,14 @@ uint8_t* find_types(FILE *ptr, int start_pos_types, int num_snps, int bits_per_r
         }
     }
     printf("Count: %i\n", j);
-
-    return types;
-
 }
 
-uint8_t* find_lengths(FILE *ptr, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length){
+void find_lengths(FILE *ptr, int *lengths, int start_pos_types, int num_snps, int bits_per_record_type, int bytes_per_record_length){
 
-    uint8_t *lengths = malloc(num_snps * sizeof(uint8_t));
     int n_blocks = (num_snps-1)/65536 + 1;      // Number of blocks
     int res = (num_snps-1) % 65536 + 1;         // Number of snps in the last block
-
     int skip = (65536 * bits_per_record_type + 7) / 8;
+    int skip_res = (res * bits_per_record_type + 7) / 8;
     int j = 0, block_bytes = (65536 * bits_per_record_type + 7) / 8 + 65536*bytes_per_record_length;
 
     printf("Block bytes: %i\n", block_bytes);
@@ -119,10 +157,10 @@ uint8_t* find_lengths(FILE *ptr, int start_pos_types, int num_snps, int bits_per
 
         if(i == n_blocks){ // Reading the final block
           
-            for (int i = 0; i < res; i++) {
+            for (int k = 0; k < res; k++) {   // k loops over bytes in block i
                 uint8_t byte;
-                fseek(ptr, start_pos_types+skip+i*bytes_per_record_length, SEEK_SET);
-        
+
+                fseek(ptr, start_pos_types+skip_res+k*bytes_per_record_length, SEEK_SET);
                 fread(&byte, sizeof(uint8_t), 1, ptr);
 
                 lengths[j] = byte;
@@ -131,10 +169,10 @@ uint8_t* find_lengths(FILE *ptr, int start_pos_types, int num_snps, int bits_per
 
         } else {
 
-            for (int i = 0; i < 65536; i++) {
+            for (int k = 0; k < 65536; k++) {
                 uint8_t byte;
-                fseek(ptr, start_pos_types+skip+i*bytes_per_record_length, SEEK_SET);
-        
+
+                fseek(ptr, start_pos_types+skip+k*bytes_per_record_length, SEEK_SET);
                 fread(&byte, sizeof(uint8_t), 1, ptr);
 
                 lengths[j] = byte;
@@ -144,18 +182,15 @@ uint8_t* find_lengths(FILE *ptr, int start_pos_types, int num_snps, int bits_per
             start_pos_types = start_pos_types + block_bytes;
         }
     }
-
-    return lengths;
 }
 
-int* find_snp_records(uint8_t* lengths, int start_pos_variant_records[], int num_snps){
+void find_snp_records(int* lengths, int *byte_pos, int start_pos_variant_records[], int num_snps){
     
     int n_blocks = (num_snps-1)/65536 + 1;      // Number of blocks
     int res = (num_snps-1) % 65536 + 1;         // Number of snps in the last block
     int j = 0;
-    // Compute bytes positions (might as well do already)
 
-    int *byte_pos = malloc(num_snps * sizeof(int));
+    // Compute bytes positions (might as well do already)
 
     for (int k = 1; k <= n_blocks; k++){
         byte_pos[j] = start_pos_variant_records[k];
@@ -177,6 +212,4 @@ int* find_snp_records(uint8_t* lengths, int start_pos_variant_records[], int num
             }
         }
     }
-
-    return byte_pos;
 }

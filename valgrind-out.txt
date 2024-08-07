@@ -1,0 +1,123 @@
+==2766898== Memcheck, a memory error detector
+==2766898== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==2766898== Using Valgrind-3.22.0-bd4db67b1d-20231031 and LibVEX; rerun with -h for copyright info
+==2766898== Command: ./execute.exe ../data/data_1k_1k_bin.pgen 1 2 5000000
+==2766898== Parent PID: 1163936
+==2766898== 
+--2766898-- 
+--2766898-- Valgrind options:
+--2766898--    --leak-check=full
+--2766898--    --show-leak-kinds=all
+--2766898--    --track-origins=yes
+--2766898--    --verbose
+--2766898--    --log-file=valgrind-out.txt
+--2766898-- Contents of /proc/version:
+--2766898--   Linux version 4.18.0-477.27.2.el8_8.x86_64 (mockbuild@x64-builder02.almalinux.org) (gcc version 8.5.0 20210514 (Red Hat 8.5.0-18) (GCC)) #1 SMP Fri Sep 29 08:21:01 EDT 2023
+--2766898-- 
+--2766898-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand-rdseed
+--2766898-- Page sizes: currently 4096, max supported 4096
+--2766898-- Valgrind library directory: /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind
+--2766898-- Reading syms from /faststorage/project/dsmwpred/jasper/Software/read_pgen/read_pgen/execute.exe
+--2766898-- Reading syms from /usr/lib64/ld-2.28.so
+--2766898-- Warning: cross-CU LIMITATION: some inlined fn names
+--2766898-- might be shown as UnknownInlinedFun
+--2766898-- Reading syms from /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/memcheck-amd64-linux
+--2766898--    object doesn't have a dynamic symbol table
+--2766898-- Scheduler: using generic scheduler lock implementation.
+--2766898-- Reading suppressions file: /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/default.supp
+==2766898== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-2766898-by-jasperh-on-x86_64-conda-linux-gnu
+==2766898== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-2766898-by-jasperh-on-x86_64-conda-linux-gnu
+==2766898== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-2766898-by-jasperh-on-x86_64-conda-linux-gnu
+==2766898== 
+==2766898== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==2766898== don't want to do, unless you know exactly what you're doing,
+==2766898== or are doing some strange experiment):
+==2766898==   /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/../../bin/vgdb --pid=2766898 ...command...
+==2766898== 
+==2766898== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==2766898==   /path/to/gdb ./execute.exe
+==2766898== and then give GDB the following command
+==2766898==   target remote | /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/../../bin/vgdb --pid=2766898
+==2766898== --pid is optional if only one valgrind process is running
+==2766898== 
+--2766898-- REDIR: 0x4005820 (ld-linux-x86-64.so.2:strlen) redirected to 0x580be362 (vgPlain_amd64_linux_REDIR_FOR_strlen)
+--2766898-- REDIR: 0x40055f0 (ld-linux-x86-64.so.2:index) redirected to 0x580be37c (vgPlain_amd64_linux_REDIR_FOR_index)
+--2766898-- Reading syms from /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/vgpreload_core-amd64-linux.so
+--2766898-- Reading syms from /home/jasperh/miniforge3/envs/jasperh/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+==2766898== WARNING: new redirection conflicts with existing -- ignoring it
+--2766898--     old: 0x04005820 (strlen              ) R-> (0000.0) 0x580be362 vgPlain_amd64_linux_REDIR_FOR_strlen
+--2766898--     new: 0x04005820 (strlen              ) R-> (2007.0) 0x04044210 strlen
+--2766898-- REDIR: 0x4002000 (ld-linux-x86-64.so.2:strcmp) redirected to 0x4045360 (strcmp)
+--2766898-- REDIR: 0x4005d80 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x404b230 (mempcpy)
+--2766898-- Reading syms from /usr/lib64/libm-2.28.so
+--2766898-- Reading syms from /usr/lib64/libc-2.28.so
+==2766898== WARNING: new redirection conflicts with existing -- ignoring it
+--2766898--     old: 0x04e4f500 (memalign            ) R-> (1011.0) 0x04042dc0 memalign
+--2766898--     new: 0x04e4f500 (memalign            ) R-> (1017.0) 0x04043510 aligned_alloc
+==2766898== WARNING: new redirection conflicts with existing -- ignoring it
+--2766898--     old: 0x04e4f500 (memalign            ) R-> (1011.0) 0x04042dc0 memalign
+--2766898--     new: 0x04e4f500 (memalign            ) R-> (1017.0) 0x040433c0 aligned_alloc
+==2766898== WARNING: new redirection conflicts with existing -- ignoring it
+--2766898--     old: 0x04e4f500 (memalign            ) R-> (1011.0) 0x04042dc0 memalign
+--2766898--     new: 0x04e4f500 (memalign            ) R-> (1017.0) 0x04043510 aligned_alloc
+==2766898== WARNING: new redirection conflicts with existing -- ignoring it
+--2766898--     old: 0x04e4f500 (memalign            ) R-> (1011.0) 0x04042dc0 memalign
+--2766898--     new: 0x04e4f500 (memalign            ) R-> (1017.0) 0x040433c0 aligned_alloc
+--2766898-- REDIR: 0x4e53780 (libc.so.6:memmove) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+==2766898== Preferring higher priority redirection:
+--2766898--     old: 0x04e81e30 (__memcpy_avx_unalign) R-> (2018.0) 0x04047310 __memcpy_avx_unaligned_erms
+--2766898--     new: 0x04e81e30 (__memcpy_avx_unalign) R-> (2018.1) 0x040495c0 memmove
+--2766898-- REDIR: 0x4e52a90 (libc.so.6:strncpy) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53ab0 (libc.so.6:strcasecmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e523a0 (libc.so.6:strcat) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52af0 (libc.so.6:rindex) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e550e0 (libc.so.6:rawmemchr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e8acc0 (libc.so.6:wmemchr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e8a6e0 (libc.so.6:wcscmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e538e0 (libc.so.6:mempcpy) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53710 (libc.so.6:bcmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52a20 (libc.so.6:strncmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52450 (libc.so.6:strcmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53850 (libc.so.6:memset) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e8a6a0 (libc.so.6:wcschr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52980 (libc.so.6:strnlen) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52530 (libc.so.6:strcspn) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53b00 (libc.so.6:strncasecmp) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e524d0 (libc.so.6:strcpy) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53c50 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e8bfc0 (libc.so.6:wcsnlen) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52b30 (libc.so.6:strpbrk) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52400 (libc.so.6:index) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52940 (libc.so.6:strlen) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e59bc0 (libc.so.6:memrchr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53b50 (libc.so.6:strcasecmp_l) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e536d0 (libc.so.6:memchr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e8a7f0 (libc.so.6:wcslen) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e52df0 (libc.so.6:strspn) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53a50 (libc.so.6:stpncpy) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e539f0 (libc.so.6:stpcpy) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e55120 (libc.so.6:strchrnul) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e53ba0 (libc.so.6:strncasecmp_l) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4e7ec50 (libc.so.6:__strrchr_avx2) redirected to 0x4043c50 (rindex)
+--2766898-- REDIR: 0x4e806f0 (libc.so.6:__strncpy_avx2) redirected to 0x40443c0 (strncpy)
+--2766898-- REDIR: 0x4e7ee20 (libc.so.6:__strlen_avx2) redirected to 0x40440f0 (strlen)
+--2766898-- REDIR: 0x4e4e790 (libc.so.6:malloc) redirected to 0x403b6b0 (malloc)
+--2766898-- REDIR: 0x4e53300 (libc.so.6:__GI_strstr) redirected to 0x404b5b0 (__strstr_sse2)
+--2766898-- REDIR: 0x4e7ea60 (libc.so.6:__strchrnul_avx2) redirected to 0x404aa30 (strchrnul)
+--2766898-- REDIR: 0x4e81e10 (libc.so.6:__mempcpy_avx_unaligned_erms) redirected to 0x404ab30 (mempcpy)
+--2766898-- REDIR: 0x4e7a310 (libc.so.6:__strcmp_avx2) redirected to 0x4045260 (strcmp)
+--2766898-- REDIR: 0x4e81e30 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x40495c0 (memmove)
+--2766898-- REDIR: 0x4e4ee20 (libc.so.6:free) redirected to 0x403e860 (free)
+--2766898-- REDIR: 0x4e80360 (libc.so.6:__strcpy_avx2) redirected to 0x4044240 (strcpy)
+--2766898-- REDIR: 0x4e535f0 (libc.so.6:strstr) redirected to 0x4031180 (_vgnU_ifunc_wrapper)
+--2766898-- REDIR: 0x4de9720 (libc.so.6:__strstr_sse2_unaligned) redirected to 0x404b530 (strstr)
+--2766898-- REDIR: 0x4e7ac80 (libc.so.6:__memchr_avx2) redirected to 0x40453e0 (memchr)
+--2766898-- REDIR: 0x4e7af50 (libc.so.6:__rawmemchr_avx2) redirected to 0x404aa50 (rawmemchr)
+==2766898== 
+==2766898== HEAP SUMMARY:
+==2766898==     in use at exit: 0 bytes in 0 blocks
+==2766898==   total heap usage: 1,845 allocs, 1,845 frees, 16,501,356 bytes allocated
+==2766898== 
+==2766898== All heap blocks were freed -- no leaks are possible
+==2766898== 
+==2766898== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
